@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>БИЕ · СТРЕСС · НОЙР · НИЙГЭМ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#03060d;
+  --text:#e6f6ff;
+  --muted:#7d93a8;
+  --cyan:#3fe9ff;
+  --magenta:#ff4fd2;
+  --violet:#8b6bff;
+  --line:rgba(63,233,255,.18);
+}
+*{box-sizing:border-box}
+html,body{
+  margin:0;width:100%;height:100%;overflow:hidden;
+  background:var(--bg);color:var(--text);
+  font-family:Inter,"Segoe UI",Arial,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ───── ОРЧИН ───── */
+.env{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.env-glow{
+  position:absolute;inset:-25%;
+  background:
+    radial-gradient(circle at 18% 12%,rgba(63,233,255,.16),transparent 30%),
+    radial-gradient(circle at 82% 22%,rgba(255,79,210,.13),transparent 28%),
+    radial-gradient(circle at 50% 95%,rgba(139,107,255,.16),transparent 38%),
+    linear-gradient(160deg,#03060d,#050c18 45%,#03060d);
+  animation:glowDrift 22s ease-in-out infinite alternate;
+}
+@keyframes glowDrift{to{transform:translate3d(-2.5%,1.5%,0) scale(1.06)}}
+
+/* хэтийн төлөвт шал */
+.env-floor{
+  position:absolute;left:-50%;right:-50%;bottom:-18%;height:62%;
+  background-image:
+    linear-gradient(rgba(63,233,255,.30) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(63,233,255,.16) 1px,transparent 1px);
+  background-size:120px 70px;
+  transform:perspective(420px) rotateX(70deg);
+  transform-origin:50% 100%;
+  animation:floorRun 5.5s linear infinite;
+  mask-image:linear-gradient(transparent,#000 55%);
+  -webkit-mask-image:linear-gradient(transparent,#000 55%);
+  opacity:.55;
+}
+@keyframes floorRun{to{background-position:0 70px,0 0}}
+
+.env-horizon{
+  position:absolute;left:0;right:0;bottom:41%;height:2px;
+  background:linear-gradient(90deg,transparent,rgba(63,233,255,.75),rgba(255,79,210,.55),transparent);
+  filter:blur(1.5px);opacity:.7;
+}
+
+.scanlines{
+  position:fixed;inset:0;z-index:6;pointer-events:none;opacity:.30;
+  background:repeating-linear-gradient(to bottom,rgba(0,0,0,.42) 0 1px,transparent 1px 3px);
+  mix-blend-mode:multiply;
+}
+.vignette{
+  position:fixed;inset:0;pointer-events:none;z-index:5;
+  background:radial-gradient(ellipse at center,transparent 52%,rgba(1,3,8,.75) 100%);
+}
+/* нисэх үеийн хурдны шугамууд */
+.speed{
+  position:fixed;inset:0;z-index:7;pointer-events:none;opacity:0;
+  transition:opacity .45s ease;
+  background:repeating-linear-gradient(115deg,
+    transparent 0 42px,
+    rgba(63,233,255,.16) 42px 44px,
+    transparent 44px 90px);
+  mask-image:radial-gradient(ellipse at center,transparent 22%,#000 78%);
+  -webkit-mask-image:radial-gradient(ellipse at center,transparent 22%,#000 78%);
+}
+.speed.on{opacity:.85}
+
+/* ───── ДЭЛХИЙ ───── */
+#viewport{position:fixed;inset:0;overflow:hidden;z-index:1}
+#world{
+  position:absolute;top:0;left:0;width:5600px;height:3400px;
+  transform-origin:0 0;will-change:transform,filter;
+}
+
+.grid-bg{
+  position:absolute;inset:0;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(63,233,255,.045) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(63,233,255,.045) 1px,transparent 1px);
+  background-size:80px 80px;
+}
+
+svg.links{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;transition:opacity .9s ease}
+svg.links line{
+  stroke:rgba(63,233,255,.34);stroke-width:2;stroke-dasharray:14 12;
+  animation:dashFlow 2.6s linear infinite;
+}
+@keyframes dashFlow{to{stroke-dashoffset:-208}}
+#world.zoomed svg.links{opacity:.08}
+
+/* ───── ТӨВ: БИЕ ───── */
+.hub{
+  position:absolute;left:2660px;top:1640px;width:280px;height:280px;
+  border-radius:50%;
+  background:
+    radial-gradient(circle,rgba(63,233,255,.20),rgba(63,233,255,.02) 68%),
+    radial-gradient(circle at 60% 70%,rgba(255,79,210,.14),transparent 60%);
+  border:1px solid rgba(63,233,255,.5);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 110px rgba(63,233,255,.25), inset 0 0 60px rgba(63,233,255,.10);
+  cursor:pointer;
+  transition:opacity .8s ease, transform .8s ease;
+}
+.hub span{
+  font-family:"Exo 2",Inter,sans-serif;font-weight:800;
+  font-size:104px;line-height:1;letter-spacing:.10em;
+  color:#eafcff;
+  text-shadow:
+    -3px 0 rgba(255,79,210,.8),
+     3px 0 rgba(63,233,255,.8),
+     0 0 40px rgba(63,233,255,.55);
+  animation:glitch 6s steps(1) infinite;
+}
+@keyframes glitch{
+  0%,92%,100%{transform:translate(0,0)}
+  93%{transform:translate(-3px,1px)}
+  95%{transform:translate(2px,-2px)}
+  97%{transform:translate(-1px,0)}
+}
+#world.zoomed .hub{opacity:.18;transform:scale(.9)}
+.hub-ring{
+  position:absolute;inset:-26px;border-radius:50%;
+  border:1px solid rgba(63,233,255,.4);
+  animation:hubPulse 3.2s ease-out infinite;
+}
+.hub-ring.b{animation-delay:1.6s}
+@keyframes hubPulse{0%{transform:scale(.88);opacity:.75}100%{transform:scale(1.55);opacity:0}}
+
+/* ───── СЛАЙД ───── */
+.zone{
+  position:absolute;width:1020px;height:760px;
+  padding:54px 58px;
+  display:flex;flex-direction:column;justify-content:center;
+  cursor:pointer;
+  background:linear-gradient(155deg,rgba(12,26,42,.78),rgba(6,14,26,.72));
+  border:1px solid var(--line);
+  clip-path:polygon(28px 0,100% 0,100% calc(100% - 28px),calc(100% - 28px) 100%,0 100%,0 28px);
+  box-shadow:inset 0 0 90px rgba(63,233,255,.05);
+  transition:opacity .8s ease, border-color .45s ease, box-shadow .45s ease;
+}
+.zone::before{
+  content:"";position:absolute;left:0;top:28px;bottom:0;width:3px;
+  background:linear-gradient(180deg,var(--cyan),var(--violet),var(--magenta));
+  opacity:.75;
+}
+.zone:hover{border-color:rgba(63,233,255,.5)}
+.zone.active-zone{
+  border-color:rgba(63,233,255,.65);
+  box-shadow:inset 0 0 90px rgba(63,233,255,.08), 0 0 120px rgba(63,233,255,.10);
+}
+#world.zoomed .zone.dimmed{opacity:.10;pointer-events:none}
+
+.zone .num{
+  position:absolute;top:26px;right:44px;
+  font-family:"Exo 2",sans-serif;font-size:86px;font-weight:800;
+  color:rgba(63,233,255,.10);letter-spacing:.04em;
+}
+.kicker{
+  font-family:"Exo 2",sans-serif;
+  font-size:12px;letter-spacing:.34em;text-transform:uppercase;
+  color:var(--cyan);font-weight:700;margin-bottom:14px;
+}
+.zone h2{
+  font-family:"Exo 2",Inter,sans-serif;font-weight:700;
+  font-size:44px;line-height:1.14;margin:0 0 20px;letter-spacing:-.01em;
+}
+.hl{color:var(--magenta)}
+.zone p{font-size:16.5px;line-height:1.62;color:#c5d6e4;max-width:880px;margin:0 0 14px}
+.meta{display:flex;gap:9px;flex-wrap:wrap;margin-top:20px}
+.pill{
+  border:1px solid rgba(63,233,255,.22);padding:7px 14px;
+  color:#8fb6c9;font-size:12.5px;background:rgba(63,233,255,.04);
+  font-family:"Exo 2",sans-serif;letter-spacing:.06em;
+}
+
+@media (prefers-reduced-motion:reduce){
+  .env-floor,.hub-ring,.hub span,svg.links line{animation:none}
+}
+
+.sources{
+  margin-top:4px;
+  padding-top:7px;
+  border-top:1px solid rgba(63,233,255,.12);
+  color:#7895a8;
+  font-size:11px;
+  line-height:1.55;
+  max-width:900px;
+}
+.sources b{color:#9dc2d3;font-weight:700}
+.sources a{color:#70dff0;text-decoration:none;border-bottom:1px solid rgba(112,223,240,.22)}
+.sources a:hover{color:#fff;border-bottom-color:rgba(255,255,255,.55)}
+
+
+.question-note{
+  margin-top:22px !important;
+  color:#8fb6c9 !important;
+  border-left:2px solid rgba(63,233,255,.4);
+  padding-left:14px;
+}
+</style>
+</head>
+<body>
+
+<div class="env">
+  <div class="env-glow"></div>
+  <div class="env-horizon"></div>
+  <div class="env-floor"></div>
+</div>
+
+<div id="viewport">
+  <div id="world">
+    <div class="grid-bg"></div>
+
+    <svg class="links" viewBox="0 0 5600 3400" aria-hidden="true">
+      <line x1="2800" y1="1780" x2="2800" y2="530"></line>
+      <line x1="2800" y1="1780" x2="4364" y2="1001"></line>
+      <line x1="2800" y1="1780" x2="4750" y2="2058"></line>
+      <line x1="2800" y1="1780" x2="3668" y2="2906"></line>
+      <line x1="2800" y1="1780" x2="1932" y2="2906"></line>
+      <line x1="2800" y1="1780" x2="850"  y2="2058"></line>
+      <line x1="2800" y1="1780" x2="1236" y2="1001"></line>
+    </svg>
+
+    <div class="hub">
+      <div class="hub-ring"></div><div class="hub-ring b"></div>
+      <span>БИЕ</span>
+    </div>
+
+    <!-- 01 -->
+    <div class="zone" data-key="1" style="left:2290px;top:150px">
+      <div class="num">01</div>
+<h2>Бие <span class="hl">яаж ажилладаг вэ?</span></h2>
+<p>Хүний бие олон хэсгээс бүрддэг ч бүгд хоорондоо холбоотой ажилладаг. Тархи биеийн үйл ажиллагааг зохицуулж, зүрх цусыг бүх биеэр шахаж, уушги хүчилтөрөгчийг авч, хоол боловсруулах эрхтнүүд хоолноос хэрэгтэй бодисыг гаргана. Булчин хөдөлгөөн хийх боломж өгч, дархлааны тогтолцоо өвчин үүсгэж болох зүйлсээс хамгаална.</p>
+<p>Эдгээр үйл ажиллагаа тасралтгүй явагдана. Бие өөрийн хэвийн байдлыг хадгалахын тулд дулаан, цусны даралт, цусан дахь сахар зэрэг олон зүйлийг байнга зохицуулдаг. Тиймээс хүн эрүүл байхын тулд зөвхөн нэг эрхтэн биш, бүх биеийн ажиллагаа хэвийн байх хэрэгтэй.</p>
+<p>Энэ үндсэн ажиллагааг ойлгосноор стресс, нойргүйдэл, ядаргаа зэрэг нь яагаад бүх биед нөлөөлдгийг ойлгоход хялбар болно.</p>
+    </div>
+
+    <!-- 02 -->
+    <div class="zone" data-key="2" style="left:3854px;top:621px">
+      <div class="num">02</div>
+<h2>Стресс <span class="hl">биед хэрхэн нөлөөлдөг вэ?</span></h2>
+<p>Хүн айх, сандрах эсвэл их дарамтад ороход бие шууд хариу үйлдэл үзүүлдэг. Зүрх хурдан цохилж, амьсгал олширч, булчинд илүү их цус очно. Ингэснээр хүн аюултай нөхцөлд хурдан хөдөлж, өөрийгөө хамгаалах боломжтой болдог.</p>
+<p>Энэ үед бие адреналин гэдэг даавар ялгаруулна. <strong>Даавар</strong> гэдэг нь биеийн нэг хэсгээс ялгарч, өөр хэсэгт мэдээлэл өгдөг бодис юм. Стресс удаан үргэлжилбэл кортизол гэдэг өөр нэг дааврын хэмжээ нэмэгдэнэ. Энэ нь биеийг гэнтийн үйл явдалд бэлэн байлгахад тусалдаг.</p>
+<p>Богино хугацааны стресс зарим үед хэрэгтэй. Харин стресс өдөр бүр үргэлжилж, бие тайвширч чадахгүй байвал нойр муудах, толгой өвдөх, булчин чангарах, цусны даралт ихсэх зэрэг асуудал гарч болно.</p>
+    </div>
+
+    <!-- 03 -->
+    <div class="zone" data-key="3" style="left:4240px;top:1678px">
+      <div class="num">03</div>
+<h2>Нойр, амралтгүй бол <span class="hl">биед юу болох вэ?</span></h2>
+<p>Унтах үед бие зүгээр байдаггүй. Харин өдрийн турш ажилласан бие, тархи сэргээн засварлагддаг. Нойр дутвал анхаарал төвлөрөх, сурах, шийдвэр гаргах чадвар мууддаг. Сэтгэл санаа ч амархан өөрчлөгдөж болно.</p>
+<p>Булчинд ч амралт хэрэгтэй. Дасгал хийсний дараа булчинд үүссэн жижиг өөрчлөлтүүдийг засаж, булчингийг өмнөхөөс нь хэвийн байдалд оруулах <strong>булчингийн нөхөн сэргээлт</strong> явагддаг. Нойр дутвал энэ нөхөн сэргээлтэд сөргөөр нөлөөлж, дасгалын дараах сэргэлт удаашрах боломжтой.</p>
+<p>Нойр байнга дутвал дархлаа, бодисын солилцоо, зүрх судасны эрүүл мэндэд ч сөргөөр нөлөөлж болно. Тиймээс нойр бол зүгээр нэг амрах хугацаа биш, биеийг хэвийн ажиллуулахад хэрэгтэй үндсэн зүйл юм.</p>
+    </div>
+
+    <!-- 04 -->
+    <div class="zone" data-key="4" style="left:3158px;top:2526px">
+      <div class="num">04</div>
+<h2>Ядарсан бие <span class="hl">нийгэмд хэрхэн нөлөөлдөг вэ?</span></h2>
+<p>Хүн удаан хугацаанд ядарч, стресстэй байвал зөвхөн өөрт нь мэдрэгдэхгүй. Анхаарал төвлөрөл муудаж, шийдвэр гаргах нь хэцүү болж, жижиг зүйлд уурлах эсвэл бухимдах нь нэмэгдэж болно.</p>
+<p>Үүний улмаас сургууль, ажил дээр алдаа гаргах, хийх ажлаа удаашруулах, бусадтай ойлголцохгүй байх зэрэг асуудал гарч болно. Өөрөөр хэлбэл нэг хүний биеийн байдал түүний гэр бүл, найз нөхөд, ангийнхан, хамт ажилладаг хүмүүстэй харилцах харилцаанд хүртэл нөлөөлж чадна.</p>
+<p>Нойр дутуу үед анхаарал болон өдөр тутмын гүйцэтгэл мууддагийг судалгаанууд харуулдаг. Тиймээс ядарсан хүнийг шууд “хичээхгүй байна” гэж дүгнэхээс өмнө түүний нойр, стресс, амралтын байдлыг бас анхаарах хэрэгтэй.</p>
+    </div>
+
+    <!-- 05 -->
+    <div class="zone" data-key="5" style="left:1422px;top:2526px">
+      <div class="num">05</div>
+<h2>Сөрөг орчин <span class="hl">бие, сэтгэлд хэрхэн нөлөөлдөг вэ?</span></h2>
+<p>Хүний эрүүл мэндэд зөвхөн хоол, дасгал нөлөөлдөггүй. Амьдарч буй орчин, гэр бүл, сургууль, ажил, орлого, бусадтай харилцах харилцаа зэрэг нь бас нөлөөлнө.</p>
+<p>Жишээлбэл байнга дээрэлхүүлэх, ялгаварлуулах, ганцаардах, хэт их дарамтад байх үед хүн удаан хугацаанд стресс мэдэрч болно. Үүний дараа нойр муудах, ядрах, сэтгэл санаа тогтворгүй болох, өдөр тутмын амьдралд оролцох хүсэл буурах зэрэг өөрчлөлт гарч болно.</p>
+<p>Энэ нь нэг чиглэлтэй биш. Сөрөг орчин хүний эрүүл мэндэд нөлөөлнө. Харин эрүүл мэнд муудахад хүн бусдаас зайгаа барих, сургууль эсвэл ажилдаа муу оролцох зэрэг асуудалтай болж, улмаар нөхцөл байдал нь улам хүндэрч болно.</p>
+    </div>
+
+    <!-- 06 -->
+    <div class="zone" data-key="6" style="left:340px;top:1678px">
+      <div class="num">06</div>
+<h2>Асуулт <span class="hl">хариулт</span></h2>
+<p><strong>1.</strong> Хүний биеийн олон хэсэг яагаад хоорондоо холбоотой ажиллах хэрэгтэй гэж та бодож байна вэ?</p>
+<p><strong>2.</strong> Стресс богино хугацаанд хэрэгтэй байж болох ч удаан үргэлжилбэл биед ямар өөрчлөлт гарч болох вэ?</p>
+<p><strong>3.</strong> Нойр, амралт дутвал хүний бие болон өдөр тутмын амьдралд ямар нөлөө үзүүлж болох вэ?</p>
+<p><strong>4.</strong> Нэг хүн ядарч, стресстэй байх нь түүний эргэн тойрны хүмүүст хэрхэн нөлөөлж болох вэ?</p>
+<p><strong>5.</strong> Хүний эрүүл мэндэд өөрийн дадлаас гадна амьдарч байгаа орчин яагаад нөлөөлж болох вэ?</p>
+    </div>
+
+    <!-- 07 -->
+    <div class="zone" data-key="7" style="left:726px;top:621px">
+      <div class="num">07</div>
+<h2>Эцсийн <span class="hl">дүгнэлт</span></h2>
+<p>Хүний бие олон хэсгээс бүрддэг боловч бүгд хоорондоо холбоотой ажилладаг. Бие хэвийн ажиллахын тулд тархи, зүрх, уушги, булчин болон бусад эрхтэн тасралтгүй хамтран ажиллана.</p>
+<p>Стресс богино хугацаанд хүнийг хамгаалахад тусалдаг. Харин удаан үргэлжилбэл бие байнга ачаалалтай байж, нойр, сэтгэл санаа болон биеийн эрүүл мэндэд сөргөөр нөлөөлж болно. Нойр, амралт дутвал тархи болон булчингийн сэргэлт муудаж, өдөр тутмын гүйцэтгэл буурна.</p>
+<p>Мөн хүний амьдарч байгаа орчин эрүүл мэндэд нөлөөлдөг. Дарамт, ганцаардал, дээрэлхэлт, сөрөг орчин нь хүний бие болон сэтгэлд нөлөөлж, эргээд түүний сургууль, ажил, харилцаанд асуудал үүсгэж болно.</p>
+<p><strong>Тиймээс бие, стресс, нойр, орчныг тус тусад нь биш, хоорондоо холбоотой зүйл гэж ойлгох нь хамгийн чухал.</strong></p>
+<div class="sources"><b>Эх сурвалж:</b> OpenStax — <a href="https://openstax.org/books/anatomy-and-physiology-2e/pages/1-5-homeostasis" target="_blank">Homeostasis</a>; ДЭМБ Монгол — <a href="https://www.who.int/mongolia/mn/emergencies/covid-19-in-mongolia/information/mental-health/stress" target="_blank">Стресс</a>; СЭМҮТ — <a href="https://ncmh.gov.mn/index.php/quiz-detail/stress-ilruulex-soril" target="_blank">Стресс илрүүлэх сорил</a>; NHLBI/NIH — <a href="https://www.nhlbi.nih.gov/health/sleep/why-sleep-important" target="_blank">Why Is Sleep Important?</a>; PubMed — <a href="https://pubmed.ncbi.nlm.nih.gov/28247026/" target="_blank">Sleep loss and recovery after exercise</a>; WHO — <a href="https://www.who.int/news-room/fact-sheets/detail/social-determinants-of-health" target="_blank">Social Determinants of Health</a></div>
+    
+    </div>
+  </div>
+</div>
+
+<div class="vignette"></div>
+<div class="scanlines"></div>
+<div class="speed" id="speed"></div>
+
+<script>
+(function(){
+  const world = document.getElementById('world');
+  const speed = document.getElementById('speed');
+  const hub   = document.querySelector('.hub');
+  const zones = Array.from(document.querySelectorAll('.zone'));
+
+  const ZONE_W = 1020, ZONE_H = 760;
+  const BOUNDS = { minX:340, maxX:5260, minY:150, maxY:3286 };
+  const boundW  = BOUNDS.maxX - BOUNDS.minX;
+  const boundH  = BOUNDS.maxY - BOUNDS.minY;
+  const boundCX = BOUNDS.minX + boundW / 2;
+  const boundCY = BOUNDS.minY + boundH / 2;
+
+  // ── нислэгийн үе шатууд (нийт ≈ 3.2 сек) ──
+  const T_LIFT    = 900;   // өргөгдөж, холдож эхлэх
+  const T_CRUISE  = 1200;  // газрын дээгүүр нисэх
+  const T_DESCEND = 1100;  // бууж, ойртох
+
+  let currentKey = '0';
+  let timers = [];
+
+  function clearTimers(){ timers.forEach(clearTimeout); timers = []; }
+  function later(fn, ms){ timers.push(setTimeout(fn, ms)); }
+
+  function zoneCenter(z){
+    return {
+      cx: parseFloat(z.style.left) + ZONE_W / 2,
+      cy: parseFloat(z.style.top)  + ZONE_H / 2
+    };
+  }
+
+  function overviewScale(){
+    return Math.min(innerWidth * 0.86 / boundW, innerHeight * 0.80 / boundH, 0.52);
+  }
+  function zoneScale(){
+    return Math.min(innerWidth * 0.90 / ZONE_W, innerHeight * 0.84 / ZONE_H, 1.3);
+  }
+
+  // одоогийн камерын байрлалыг матрицаас уншина (тасалдсан нислэгийг зөв үргэлжлүүлэхэд)
+  function readCamera(){
+    const m = new DOMMatrixReadOnly(getComputedStyle(world).transform);
+    const scale = Math.hypot(m.a, m.b) || overviewScale();
+    return {
+      scale: scale,
+      cx: (innerWidth  / 2 - m.e) / scale,
+      cy: (innerHeight / 2 - m.f) / scale
+    };
+  }
+
+  function freeze(){
+    const st = getComputedStyle(world);
+    world.style.transition = 'none';
+    world.style.transform  = st.transform;
+    world.style.filter     = st.filter;
+    void world.offsetWidth; // reflow
+  }
+
+  function move(scale, cx, cy, ms, easing, blur, bright, rot){
+    world.style.transition = 'transform ' + ms + 'ms ' + easing + ', filter ' + ms + 'ms ease';
+    world.style.filter     = 'blur(' + blur + 'px) brightness(' + bright + ')';
+    world.style.transform  =
+      'translate(' + (innerWidth / 2 - cx * scale) + 'px,' +
+                     (innerHeight / 2 - cy * scale) + 'px) ' +
+      'scale(' + scale + ') rotate(' + rot + 'deg)';
+  }
+
+  // GTA-style: өргөгдөх → нисэх → буух
+  function flyTo(targetScale, tx, ty){
+    clearTimers();
+    freeze();
+
+    const from   = readCamera();
+    const cruise = overviewScale() * 0.74;          // "өндөрт гарах"
+    const tilt   = tx < from.cx ? -1.6 : 1.6;       // чиглэл рүү бага зэрэг хазайх
+
+    // 1 — өргөгдөх
+    move(cruise,
+         from.cx + (tx - from.cx) * 0.22,
+         from.cy + (ty - from.cy) * 0.22,
+         T_LIFT, 'cubic-bezier(.52,0,.78,.32)', 7, 1.12, tilt * 0.5);
+
+    // 2 — нисэх
+    later(function(){
+      speed.classList.add('on');
+      move(cruise, tx, ty, T_CRUISE, 'cubic-bezier(.42,0,.58,1)', 13, 1.18, tilt);
+    }, T_LIFT);
+
+    // 3 — буух
+    later(function(){
+      speed.classList.remove('on');
+      move(targetScale, tx, ty, T_DESCEND, 'cubic-bezier(.16,.84,.26,1)', 0, 1, 0);
+    }, T_LIFT + T_CRUISE);
+  }
+
+  function setActive(k){
+    currentKey = k;
+    zones.forEach(function(z){ z.classList.toggle('active-zone', z.dataset.key === k); });
+  }
+
+  function goOverview(){
+    world.classList.remove('zoomed');
+    zones.forEach(function(z){ z.classList.remove('dimmed'); });
+    flyTo(overviewScale(), boundCX, boundCY);
+    setActive('0');
+  }
+
+  function goZone(key){
+    const z = zones.find(function(zz){ return zz.dataset.key === key; });
+    if(!z) return;
+    world.classList.add('zoomed');
+    zones.forEach(function(zz){ zz.classList.toggle('dimmed', zz.dataset.key !== key); });
+    const c = zoneCenter(z);
+    flyTo(zoneScale(), c.cx, c.cy);
+    setActive(key);
+  }
+
+  function step(dir){
+    const i = currentKey === '0' ? (dir > 0 ? 0 : 8) : parseInt(currentKey, 10);
+    let next = i + dir;
+    if(next < 1) next = 7;
+    if(next > 7) next = 1;
+    goZone(String(next));
+  }
+
+  document.addEventListener('keydown', function(e){
+    if(e.key >= '1' && e.key <= '7')                     goZone(e.key);
+    else if(e.key === '0' || e.key === 'Escape')         goOverview();
+    else if(e.key === 'ArrowRight' || e.key === ' '){ e.preventDefault(); step(1); }
+    else if(e.key === 'ArrowLeft')                       step(-1);
+  });
+
+  zones.forEach(function(z){
+    z.addEventListener('click', function(){ goZone(z.dataset.key); });
+  });
+  hub.addEventListener('click', goOverview);
+
+  // эхний байрлал — анимацгүй
+  (function init(){
+    const s = overviewScale();
+    world.style.transition = 'none';
+    world.style.filter     = 'blur(0px) brightness(1)';
+    world.style.transform  =
+      'translate(' + (innerWidth / 2 - boundCX * s) + 'px,' +
+                     (innerHeight / 2 - boundCY * s) + 'px) scale(' + s + ') rotate(0deg)';
+  })();
+
+  let resizeTimer = null;
+  addEventListener('resize', function(){
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function(){
+      if(currentKey === '0') goOverview(); else goZone(currentKey);
+    }, 150);
+  });
+})();
+</script>
+</body>
+</html>
